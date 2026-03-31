@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destinatarios</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleDes.css') }}">
+</head>
+<body>
+    <div class="admin-navbar">
+        <div class="navbar-left">
+            <img src="https://cdn-icons-png.flaticon.com/128/6114/6114700.png" alt="Logo" class="logo">
+            <a href="{% if session['rol'] == 'usuario' %}
+                {{ url_for('inicio') }}
+            {% elif session['rol'] == 'jefe' %}
+                {{ url_for('jefe') }}
+            {% elif session['rol'] == 'recepcion' %}
+                {{ url_for('recepcion') }}
+            {% elif session['rol'] == 'administrador' %}
+                {{ url_for('administrador') }}
+            {% else %}
+                {{ url_for('login') }}
+            {% endif %}" class="app-name">CoDI</a>
+            <span class="user-role">{{ session['rol'] }}</span>
+        </div>
+
+        <div class="navbar-right">
+
+            <div class="user-dropdown">
+                <button class="user-btn">
+                    <i class="fas fa-user-circle"></i> {{ session['nombre'] }}
+                </button>
+                <div class="dropdown-content">
+                    <a href="{% if session['rol'] == 'usuario' %}
+                        {{ url_for('inicio') }}
+                        {% elif session['rol'] == 'jefe' %}
+                        {{ url_for('jefe') }}
+                        {% elif session['rol'] == 'recepcion' %}
+                        {{ url_for('recepcion') }}
+                        {% elif session['rol'] == 'administrador' %}
+                        {{ url_for('administrador') }}
+                        {% else %}
+                        {{ url_for('login') }}
+                        {% endif %}"><i class="fas fa-user"></i> Inicio</a>
+                    <a href="{{ url_for('formatos') }}"><i class="fas fa-user"></i> Formatos</a>
+                    <a href="{{ url_for('mostrar_destinatarios') }}"><i class="fas fa-user"></i> Destinatarios</a>
+                    <a href="{{ url_for('folios') }}"><i class="fas fa-user"></i> Folios</a>
+                    <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <h1>Bienvenido a Destinatarios</h1>
+
+    <div class="agregar-destinatario">
+        <form id="search-form">
+            <input type="search" id="search-input" placeholder="Buscar por nombre o cargo">
+            <button type="submit">Buscar</button>
+        </form>
+        <input type="text" placeholder="Nombre completo" id="nombreInput">
+        <input type="text" placeholder="Cargo" id="cargoInput">
+        <button id="agregarBtn">Agregar</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Cargo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <button id="prevBtn">Anterior</button>
+        <span id="pageInfo">Página 1</span>
+        <button id="nextBtn">Siguiente</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/JSDESTINA.js') }}"></script>
+</body>
+</html>

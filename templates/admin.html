@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleadmin.css') }}">
+</head>
+<body>
+    <div class="admin-navbar">
+        <div class="navbar-left">
+            <img src="https://cdn-icons-png.flaticon.com/128/6114/6114700.png" alt="Logo" class="logo">
+            <a href="{% if session['rol'] == 'usuario' %}
+                {{ url_for('inicio') }}
+            {% elif session['rol'] == 'jefe' %}
+                {{ url_for('jefe') }}
+            {% elif session['rol'] == 'recepcion' %}
+                {{ url_for('recepcion') }}
+            {% elif session['rol'] == 'administrador' %}
+                {{ url_for('administrador') }}
+            {% else %}
+                {{ url_for('login') }}
+            {% endif %}" class="app-name">CoDI</a>
+            <span class="user-role">{{ session['rol'] }}</span>
+        </div>
+
+        <div class="navbar-right">
+            <div class="user-dropdown">
+                <button class="user-btn">
+                    <img src="https://cdn-icons-png.flaticon.com/128/456/456283.png" alt="Usuario" class="user-icon"> {{ session['nombre'] }}
+                </button>
+                <div class="dropdown-content">
+                    <a href="{% if session['rol'] == 'usuario' %}
+                        {{ url_for('inicio') }}
+                        {% elif session['rol'] == 'jefe' %}
+                        {{ url_for('jefe') }}
+                        {% elif session['rol'] == 'recepcion' %}
+                        {{ url_for('recepcion') }}
+                        {% elif session['rol'] == 'administrador' %}
+                        {{ url_for('administrador') }}
+                        {% else %}
+                        {{ url_for('login') }}
+                        {% endif %}"> Inicio</a>
+                    <a href="{{ url_for('logout') }}"> Cerrar sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h1 style="text-align: center;">Bienvenido Administrador</h1>
+
+    <div class="dropdown">
+        <button class="dropdown-btn" onclick="toggleDropdown()">Seleccionar Tabla</button>
+        <div class="dropdown-content" id="dropdown-content">
+            <a href="#" onclick="showTable('usuarios')">Usuarios</a>
+            <a href="#" onclick="showTable('unidades')">Unidades</a>
+            <a href="#" onclick="showTable('areas')">Áreas</a>
+        </div>
+    </div>
+
+    <!-- Tabla Usuarios -->
+    <table id="usuarios-table" class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th><th>Nombre</th><th>Correo</th><th>Contraseña</th>
+                <th>Cargo</th><th>Siglas</th><th>Área</th><th>Rol</th><th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for u in usuarios %}
+        <tr>
+            {% for i in range(0, 7) %}
+            <td>{{ u[i] }}</td>
+            {% endfor %}
+            <td>
+                <select class="rol-select">
+                    <option value="usuario" {% if u[7] == 'usuario' %}selected{% endif %}>Usuario</option>
+                    <option value="administrador" {% if u[7] == 'administrador' %}selected{% endif %}>Administrador</option>
+                    <option value="jefe" {% if u[7] == 'jefe' %}selected{% endif %}>Jefe</option>
+                    <option value="recepcion" {% if u[7] == 'recepcion' %}selected{% endif %}>Recepción</option>
+                </select>
+            </td>
+            <td>{{ u[8] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="8" style="text-align: right;">
+                    <button class="action-btn save-btn">Guardar</button>
+                    <button class="action-btn add-btn">Agregar</button>
+                    <button class="action-btn edit-btn">Editar</button>
+                    <button class="action-btn delete-btn">Eliminar</button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Tabla Unidades -->
+    <table id="unidades-table" class="data-table" style="display: none;">
+        <thead>
+            <tr>
+                <th>ID</th><th>Nombre</th><th>Descripción</th><th>Localidad</th><th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in unidades %}
+            <tr>
+                {% for field in row %}
+                <td>{{ field }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" style="text-align: right;">
+                    <button class="action-btn save-btn">Guardar</button>
+                    <button class="action-btn add-btn">Agregar</button>
+                    <button class="action-btn edit-btn">Editar</button>
+                    <button class="action-btn delete-btn">Eliminar</button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Tabla Áreas -->
+    <table id="areas-table" class="data-table" style="display: none;">
+        <thead>
+            <tr>
+                <th>ID</th><th>Nombre</th><th>UI</th><th>CC</th>
+                <th>Siglas</th><th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in areas %}
+            <tr>
+                {% for field in a %}
+                <td>{{ field }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7" style="text-align: right;">
+                    <button class="action-btn save-btn">Guardar</button>
+                    <button class="action-btn add-btn">Agregar</button>
+                    <button class="action-btn edit-btn">Editar</button>
+                    <button class="action-btn delete-btn">Eliminar</button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+<div class="pagination-container">
+    <div class="pagination">
+        <div class="pagination-group">
+            <button id="prevBtn" class="pagination-btn">Anterior</button>
+            <span id="pageInfo" class="page-info">Página 1 de 2</span>
+            <button id="nextBtn" class="pagination-btn">Siguiente</button>
+        </div>
+    </div>
+</div>
+    <script src="{{ url_for('static', filename='js/JSADMIN.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/JSADMIN1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/JSADMIN2.js') }}"></script>
+</body>
+</html>

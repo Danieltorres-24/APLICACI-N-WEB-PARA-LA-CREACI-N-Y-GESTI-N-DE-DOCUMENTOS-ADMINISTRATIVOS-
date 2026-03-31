@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoDI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="admin-navbar">
+        <div class="navbar-left">
+            <img src="https://cdn-icons-png.flaticon.com/128/6114/6114700.png" alt="Logo" class="logo">
+            <a href="{% if session['rol'] == 'usuario' %}
+                {{ url_for('inicio') }}
+            {% elif session['rol'] == 'jefe' %}
+                {{ url_for('jefe') }}
+            {% elif session['rol'] == 'recepcion' %}
+                {{ url_for('recepcion') }}
+            {% elif session['rol'] == 'administrador' %}
+                {{ url_for('administrador') }}
+            {% else %}
+                {{ url_for('login') }}
+            {% endif %}" class="app-name">CoDI</a>
+            <span class="user-role">{{ session['rol'] }}</span>
+        </div>
+
+        <div class="navbar-right">
+            <div class="user-dropdown">
+                <button class="user-btn">
+                    <i class="fas fa-user-circle"></i> {{ session['nombre'] }}
+                </button>
+                <div class="dropdown-content">
+                    <a href="{% if session['rol'] == 'usuario' %}
+                        {{ url_for('inicio') }}
+                        {% elif session['rol'] == 'jefe' %}
+                        {{ url_for('jefe') }}
+                        {% elif session['rol'] == 'recepcion' %}
+                        {{ url_for('recepcion') }}
+                        {% elif session['rol'] == 'administrador' %}
+                        {{ url_for('administrador') }}
+                        {% else %}
+                        {{ url_for('login') }}
+                        {% endif %}"><i class="fas fa-user"></i> Inicio</a>
+                    <a href="{{ url_for('formatos') }}"><i class="fas fa-user"></i> Formatos</a>
+                    <a href="{{ url_for('mostrar_destinatarios') }}"><i class="fas fa-user"></i> Destinatarios</a>
+                    <a href="{{ url_for('folios') }}"><i class="fas fa-user"></i> Folios</a>
+                    <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Menú</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="{{ url_for('inicio') }}"><i class="fas fa-file-alt"></i> Inicio</a></li>
+            <li><a href="{{ url_for('formatos') }}"><i class="fas fa-file-alt"></i> Formatos</a></li>
+            <li><a href="{{ url_for('mostrar_destinatarios') }}"><i class="fas fa-users"></i> Destinatarios</a></li>
+            <li><a href="{{ url_for('folios') }}"><i class="fas fa-folder-open"></i> Folios</a></li>
+        </ul>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <!-- Perfil -->
+        <div class="profile-section">
+            <div class="profile-header">
+                <h2><i class="fas fa-id-badge"></i> Perfil de Usuario</h2>
+            </div>
+            <div class="profile-content">
+                <div class="profile-pic">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Foto usuario">
+                </div>
+                <div class="profile-info">
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-user"></i> Nombre:</span>
+                        <span class="info-value">{{ session['nombre'] }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-envelope"></i> Correo:</span>
+                        <span class="info-value">{{ session['correo'] }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-briefcase"></i> Cargo:</span>
+                        <span class="info-value">{{ session['cargo'] }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-code"></i> Siglas:</span>
+                        <span class="info-value">{{ session['siglas'] }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-building"></i> Área:</span>
+                        <span class="info-value">{{ session['area'] }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentos -->
+        <div class="documents-section">
+            <div class="section-header">
+                <h2><i class="fas fa-folder"></i> Registro de Documentos</h2>
+                <a href="{{ url_for('folios') }}" class="view-all">Ver todos</a>
+            </div>
+            <div class="documents-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Area</th>
+                            <th>Folio</th>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="folios-body">
+                    {% if folios %}
+                        {% for f in folios %}
+                        <tr>
+                            <td>{{ f.IdSalida }}</td>
+                            <td>{{ f.origenArea }}</td>
+                            <td>{{ f.folio }}</td>
+                            <td>{{ f.tipo }}</td>
+                            <td>{{ f.fecha_registro }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="5">No tienes folios registrados</td></tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>

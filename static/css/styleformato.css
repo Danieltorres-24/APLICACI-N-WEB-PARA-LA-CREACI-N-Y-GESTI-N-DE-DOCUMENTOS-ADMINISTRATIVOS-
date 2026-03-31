@@ -1,0 +1,299 @@
+:root {
+    --primary-color: #4e73df;
+    --secondary-color: #1cc88a;
+    --danger-color: #e74a3b;
+    --warning-color: #f6c23e;
+    --dark-color: #5a5c69;
+    --light-color: #f8f9fc;
+    --sidebar-width: 250px;
+    --navbar-height: 60px;
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f8f9fc;
+    color: #333;
+}
+
+/* Navbar superior */
+.admin-navbar {
+    background-color: white;
+    height: var(--navbar-height);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 0.15rem 1.75rem rgba(58,59,69,0.15);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.app-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+.user-role {
+    font-size: 0.9rem;
+    color: var(--dark-color);
+    background-color: #f0f0f0;
+    padding: 3px 8px;
+    border-radius: 15px;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-left: 20px;
+}
+
+.user-btn {
+    background: none;
+    border: none;
+    color: var(--dark-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.user-btn i {
+    margin-right: 5px;
+    font-size: 1.2rem;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: var(--dark-color);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s;
+}
+
+.dropdown-content a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.dropdown-content a:hover {
+    background-color: #f5f5f5;
+}
+
+.user-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+    color: var(--dark-color);
+    font-size: 1.2rem;
+}
+
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--danger-color);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ============================= */
+/* Contenedor principal - ALINEADO A LA IZQUIERDA */
+/* ============================= */
+.container {
+    margin: 40px auto;
+    max-width: 780px;
+    background: #ffffff;
+    padding: 45px 35px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    text-align: left;
+}
+
+/* ============================= */
+/* Título - ALINEADO A LA IZQUIERDA */
+/* ============================= */
+.container h2 {
+    font-size: 30px;
+    margin-bottom: 25px;
+    color: #222;
+    font-weight: 800;
+    text-align: left;
+    position: relative;
+    margin-left: 0;
+}
+
+/* Línea decorativa debajo del título - ALINEADA A LA IZQUIERDA */
+.container h2::after {
+    content: "";
+    display: block;
+    margin: 10px 0 0 0; /* Cambiado de "auto" a "0" para alinear a la izquierda */
+    width: 60px;
+    height: 3px;
+    background: #007bff;
+    border-radius: 2px;
+}
+
+/* ============================= */
+/* Texto de instrucciones - ALINEADO A LA IZQUIERDA */
+/* ============================= */
+.container p {
+    font-size: 17px;
+    color: #555;
+    line-height: 1.7;
+    margin: 10px 0;
+    text-align: left;
+}
+
+/* ============================= */
+/* Botones - ALINEADOS A LA IZQUIERDA */
+/* ============================= */
+/* ============================= */
+/* Botones - CENTRADOS */
+/* ============================= */
+.botones {
+    display: flex;
+    justify-content: center; /* centra horizontal */
+    gap: 20px; /* espacio entre botones */
+    flex-wrap: wrap; /* se acomodan si no caben */
+    margin-top: 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    min-width: 150px; /* ancho mínimo uniforme */
+}
+
+/* Botón principal */
+.btn-primary {
+    background: #007bff;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Botón secundario */
+.btn-secondary {
+    background: #28a745;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #1e7e34;
+    transform: translateY(-2px);
+}
+
+.flash-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    z-index: 9999;
+    animation: fadeOut 4s forwards;
+}
+
+.flash-message.success {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.flash-message.error {
+    background-color: #f44336;
+    color: white;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-20px); }
+}
+
+
+
+/* ============================= */
+/* Responsive */
+/* ============================= */
+@media (max-width: 600px) {
+    .banner-index {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .admin-button {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .container {
+        padding: 30px 20px;
+    }
+
+    .btn {
+        width: 100%;
+        margin: 10px 0;
+    }
+}

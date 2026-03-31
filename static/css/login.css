@@ -1,0 +1,177 @@
+:root {
+    --primary-color: #4e73df;
+    --primary-dark: #3753c4;
+    --danger-color: #e74a3b;
+    --dark-color: #5a5c69;
+    --light-color: #f8f9fc;
+    --dark-gray: #333;
+    --border-radius: 8px;
+    --navbar-height: 60px;
+    --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--light-color);
+    color: var(--dark-gray);
+}
+
+.admin-navbar {
+    background-color: white;
+    height: var(--navbar-height);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: var(--box-shadow);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.app-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+.user-role {
+    font-size: 0.9rem;
+    color: var(--dark-color);
+    background-color: #f0f0f0;
+    padding: 3px 8px;
+    border-radius: 15px;
+}
+
+.container {
+    display: flex;
+    height: calc(100vh - var(--navbar-height));
+    margin-top: var(--navbar-height);
+}
+
+.left-section {
+    width: 50%;
+    background-image: url("https://img.freepik.com/fotos-premium/asesor-negocios-legal-trabajando-oficina-documentos-su-escritorio-haciendo-planificacion-analizando-concepto-analisis-finanzas-inversion-plan-negocios-informe-financiero_1016675-1340.jpg?uid=R186694200&ga=GA1.1.920627077.1738989774&semt=ais_hybrid&w=740");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay-text {
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-color: transparent; /* Elimina el fondo blanco */
+}
+
+.overlay-text h2 {
+    font-size: 2rem;
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+}
+
+.overlay-text p {
+    font-size: 1rem;
+    color: var(--dark-color);
+}
+
+.right-section {
+    width: 50%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.form-step {
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-title {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    color: var(--dark-gray);
+    text-align: center;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+    color: var(--dark-color);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 40px 12px 35px;
+    border: none;
+    border-bottom: 2px solid var(--dark-color);
+    font-size: 1rem;
+    background-color: transparent;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    border-bottom: 2px solid var(--primary-color);
+    outline: none;
+}
+
+.form-group i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--medium-gray);
+    font-size: 1rem;
+}
+
+.form-group button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: var(--border-radius);
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-group button:hover {
+    background-color: var(--primary-dark);
+}

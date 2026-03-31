@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoDI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleformato.css') }}">
+</head>
+<body>
+    <div class="admin-navbar">
+        <div class="navbar-left">
+            <img src="https://cdn-icons-png.flaticon.com/128/6114/6114700.png" alt="Logo" class="logo">
+            <a href="{% if session['rol'] == 'usuario' %}
+                {{ url_for('inicio') }}
+            {% elif session['rol'] == 'jefe' %}
+                {{ url_for('jefe') }}
+            {% elif session['rol'] == 'recepcion' %}
+                {{ url_for('recepcion') }}
+            {% elif session['rol'] == 'administrador' %}
+                {{ url_for('administrador') }}
+            {% else %}
+                {{ url_for('login') }}
+            {% endif %}" class="app-name">CoDI</a>
+            <span class="user-role">{{ session['rol'] }}</span>
+        </div>
+
+        <div class="navbar-right">
+
+            <div class="user-dropdown">
+                <button class="user-btn">
+                    <i class="fas fa-user-circle"></i> {{ session['nombre'] }}
+                </button>
+                <div class="dropdown-content">
+                    <a href="{% if session['rol'] == 'usuario' %}
+                        {{ url_for('inicio') }}
+                        {% elif session['rol'] == 'jefe' %}
+                        {{ url_for('jefe') }}
+                        {% elif session['rol'] == 'recepcion' %}
+                        {{ url_for('recepcion') }}
+                        {% elif session['rol'] == 'administrador' %}
+                        {{ url_for('administrador') }}
+                        {% else %}
+                        {{ url_for('login') }}
+                        {% endif %}"><i class="fas fa-user"></i> Inicio</a>
+                    <a href="{{ url_for('formatos') }}"><i class="fas fa-user"></i> Formatos</a>
+                    <a href="{{ url_for('mostrar_destinatarios') }}"><i class="fas fa-user"></i> Destinatarios</a>
+                    <a href="{{ url_for('folios') }}"><i class="fas fa-user"></i> Folios</a>
+                    <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor principal con dos columnas -->
+    <div style="display: flex; justify-content: center; align-items: flex-start; gap: 40px; margin: 40px;">
+        
+        <!-- Columna izquierda -->
+        <div class="container" style="flex: 1; text-align: center;">
+            <h2>Información de formatos</h2>
+            
+            <div style="margin: 20px 0; text-align: center;">
+                <p style="color: black; font-weight: bold; font-size: 16px;">
+                    LOS FORMATOS DEBEN CAMBIARSE PARA SU FUNCIÓN
+                </p>
+
+                <p style="color: red; font-size: 16px;">
+                    Aviso: Dar click al boton de Copiar contenido del formato, despues pegar en su formato
+                </p>
+                
+                <p style="color: black; font-size: 16px;">
+                    Cada año se cambiará de formato, cualquier error, avisar 
+                    al administrador.
+                </p>
+
+                <p style="color: red; font-size: 16px;">
+                    Ojo: No puede copiarse tal cual a un formato en especial, abajo hay una imagen de como debe quedar y no editar las etiquetas
+                </p>
+                 <p style="color: black; font-weight: bold; font-size: 16px;">
+                    FAVOR DE SUBIR SU FORMATO EN DOCX.
+                </p>
+            </div>
+
+            <div>
+                <button id="btnCopiar" class="btn">Copiar contenido del Formato</button>
+            </div>
+
+            <!-- Contenedor de ejemplo de documento debajo -->
+            <div class="container" style="margin-top: 40px; text-align: center;">
+                <h3>Ejemplo de Documento</h3>
+                <img src="{{ url_for('static', filename='img/ejemploformato.png') }}" 
+                     alt="Ejemplo Documento" 
+                     style="max-width: 90%; border: 1px solid #ccc; border-radius: 10px;">
+            </div>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="container" style="flex: 1; text-align: center;">
+            <h2>Subir un documento</h2>
+            
+            <form id="formSubir" enctype="multipart/form-data" style="margin-top: 20px;">
+                <input type="file" name="documento" id="documentoInput" accept=".docx" required style="margin-bottom: 15px;">
+                <br>
+                <button type="submit" class="btn">Subir Documento</button>
+            </form>
+
+        </div>
+    </div>
+    <div id="notificacion" style="display:none; position:fixed; top:20px; right:20px; padding:12px 20px; background-color:#4CAF50; color:white; border-radius:6px; font-weight:bold; z-index:9999;"></div>
+    <!-- Script -->
+    <script src="{{ url_for('static', filename='js/formatos.js') }}"></script>
+</body>
+</html>

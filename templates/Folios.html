@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folios</title> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylefo.css') }}">
+</head>
+<body>
+    <div class="admin-navbar">
+        <div class="navbar-left">
+            <img src="https://cdn-icons-png.flaticon.com/128/6114/6114700.png" alt="Logo" class="logo">
+            <a href="{% if session['rol'] == 'usuario' %}
+                {{ url_for('inicio') }}
+            {% elif session['rol'] == 'jefe' %}
+                {{ url_for('jefe') }}
+            {% elif session['rol'] == 'recepcion' %}
+                {{ url_for('recepcion') }}
+            {% elif session['rol'] == 'administrador' %}
+                {{ url_for('administrador') }}
+            {% else %}
+                {{ url_for('login') }}
+            {% endif %}" class="app-name">CoDI</a>
+            <span class="user-role">{{ session['rol'] }}</span>
+        </div>
+
+        <div class="navbar-right">
+            <div class="user-dropdown">
+                <button class="user-btn">
+                    <img src="https://cdn-icons-png.flaticon.com/128/456/456283.png" alt="Usuario" class="user-icon"> {{ session['nombre'] }}
+                </button>
+                <div class="dropdown-content">
+                    <a href="{% if session['rol'] == 'usuario' %}
+                        {{ url_for('inicio') }}
+                        {% elif session['rol'] == 'jefe' %}
+                        {{ url_for('jefe') }}
+                        {% elif session['rol'] == 'recepcion' %}
+                        {{ url_for('recepcion') }}
+                        {% elif session['rol'] == 'administrador' %}
+                        {{ url_for('administrador') }}
+                        {% else %}
+                        {{ url_for('login') }}
+                        {% endif %}"> Inicio</a>
+                    <a href="{{ url_for('formatos') }}"> Formatos</a>
+                    <a href="{{ url_for('mostrar_destinatarios') }}"> Destinatarios</a>
+                    <a href="{{ url_for('folios') }}"> Folios</a>
+                    <a href="{{ url_for('logout') }}"> Cerrar sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1 class="page-title">Bienvenido a Folios</h1>
+        <div class="form-section">
+            <h2>Agregar Nuevo Documento</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Asunto</label>
+                    <input type="text" class="form-input" id="asuntoInput" placeholder="Escribe el asunto aquí">
+                    <input type="hidden" id="areaOrigen" value="{{ session['IdArea'] }}">
+                </div>
+
+
+                <div class="form-group">
+                    <label class="form-label">Tipo</label>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="tipo" value="memorándum" checked> Memorándum</label>
+                        <label class="radio-option"><input type="radio" name="tipo" value="oficio"> Oficio</label>
+                    </div>
+                </div>
+
+                <div class="form-group button-group">
+                        <button id="agregarBtn" class="primary-button">Generar Folio</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Búsqueda -->
+        <div class="search-section">
+            <form id="search-form" class="search-form">
+                <input type="search" id="search-input" placeholder="Buscar por Folio,Asunto,Tipo" class="search-input" required>
+                <button type="submit" class="search-button">
+                    <img src="https://cdn-icons-png.flaticon.com/128/151/151773.png" alt="Buscar" class="search-icon"> Buscar
+                </button>
+            </form>
+        </div>
+        
+        <!-- Tabla de folios -->
+        <div class="table-section">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Asunto</th>
+                            <th>Tipo</th>
+                            <th>Acciones</th>
+                            <th>Documento</th>
+                            <th>Acuse</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Los datos se cargarán dinámicamente -->
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 20px;">
+                                No hay folios registrados. Agregue un nuevo documento.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            <div class="pagination">
+                <button id="prevBtn" class="pagination-button" disabled>
+                    <img src="https://cdn-icons-png.flaticon.com/128/271/271220.png" alt="Anterior" class="pagination-icon"> Anterior
+                </button>
+                <span id="pageInfo" class="page-info">Página 1</span>
+                <button id="nextBtn" class="pagination-button">
+                    Siguiente <img src="https://cdn-icons-png.flaticon.com/128/271/271228.png" alt="Siguiente" class="pagination-icon">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/JSFolio.js') }}"></script>
+    <script>
+    const currentSiglas = "{{ session['siglas'] }}"; // Siglas del usuario desde Flask
+    </script>
+
+</body>
+</html>

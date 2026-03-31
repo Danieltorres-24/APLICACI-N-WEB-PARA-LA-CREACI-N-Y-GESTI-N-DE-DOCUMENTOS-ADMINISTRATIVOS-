@@ -1,0 +1,1208 @@
+<script>
+        function toggleDropdown() {
+            document.getElementById("dropdown-content").classList.toggle("show");
+        }
+
+        function showTable(type) {
+            const tables = document.querySelectorAll(".data-table");
+            tables.forEach(t => t.style.display = "none");
+            document.getElementById(type + "-table").style.display = "table";
+            document.getElementById("dropdown-content").classList.remove("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropdown-btn')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    dropdowns[i].classList.remove("show");
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const tables = document.querySelectorAll("table.data-table");
+
+            tables.forEach(table => {
+                let selectedRow = null;
+                const tbody = table.querySelector("tbody");
+
+                const setupRowSelection = () => {
+                    const rows = tbody.querySelectorAll("tr");
+                    rows.forEach(row => {
+                        row.addEventListener("click", function () {
+                            if (selectedRow) selectedRow.classList.remove("selected");
+                            selectedRow = this;
+                            selectedRow.classList.add("selected");
+                        });
+                    });
+                };
+
+                setupRowSelection();
+
+                const editBtn = table.querySelector(".edit-btn");
+                const deleteBtn = table.querySelector(".delete-btn");
+                const addBtn = table.querySelector(".add-btn");
+                const saveBtn = table.querySelector(".save-btn");
+
+                if (editBtn) {
+                    editBtn.addEventListener("click", function () {
+                        if (!selectedRow) return alert("Selecciona una fila para editar.");
+                        const cells = selectedRow.querySelectorAll("td");
+                        cells.forEach((cell, index) => {
+                            if (index !== 0) {
+                                cell.innerHTML = `<input type="text" value="${cell.textContent}" />`;
+                            }
+                        });
+                    });
+                }
+
+                if (deleteBtn) {
+                    deleteBtn.addEventListener("click", function () {
+                        if (!selectedRow) return alert("Selecciona una fila para eliminar.");
+                        if (confirm("¿Estás seguro de que deseas eliminar esta fila?")) {
+                            const userId = selectedRow.cells[0].textContent;
+                            fetch(`/delete_user/${userId}`, {
+                                method: 'POST'
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    selectedRow.remove();
+                                    selectedRow = null;
+                                } else {
+                                    alert("Error al eliminar el usuario.");
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert("Error al eliminar el usuario.");
+                            });
+                        }
+                    });
+                }
+
+                if (addBtn) {
+                    addBtn.addEventListener("click", function () {
+                        const columnCount = table.querySelector("thead tr").children.length;
+                        const newRow = document.createElement("tr");
+                        const rows = table.querySelectorAll("tbody tr");
+                        let newId = 1;
+
+                        // Calcular el nuevo ID (máximo actual + 1)
+                        if (rows.length > 0) {
+                            const lastIds = Array.from(rows).map(row => parseInt(row.cells[0].textContent) || 0);
+                            newId = Math.max(...lastIds) + 1;
+                        }
+
+                        for (let i = 0; i < columnCount; i++) {
+                            const td = document.createElement("td");
+                            if (i === 0) {
+                                td.textContent = newId; // ID autogenerado
+                            } else if (i === columnCount - 1) {
+                                td.textContent = new Date().toLocaleString(); // Fecha autogenerada
+                            } else {
+                                td.innerHTML = `<input type="text" placeholder="Nuevo valor" />`;
+                            }
+                            newRow.appendChild(td);
+                        }
+
+                        tbody.appendChild(newRow);
+                        if (selectedRow) selectedRow.classList.remove("selected");
+                        selectedRow = newRow;
+                        newRow.classList.add("selected");
+                    });
+                }
+
+                if (saveBtn) {
+                    saveBtn.addEventListener("click", function () {
+                        if (!selectedRow) return alert("Selecciona una fila para guardar.");
+                        const cells = selectedRow.querySelectorAll("td");
+                        const updatedData = {};
+                        cells.forEach((cell, index) => {
+                            const input = cell.querySelector("input");
+                            updatedData[index] = input ? input.value : cell.textContent;
+                        });
+
+                        fetch(`/add_user`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                nombre: updatedData[1],
+                                correo: updatedData[2],
+                                contrasena: updatedData[3],
+                                cargo: updatedData[4],
+                                siglas: updatedData[5],
+                                area: updatedData[6],
+                                rol: updatedData[7]
+                            })
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("Usuario guardado exitosamente.");
+                                cells.forEach((cell, index) => {
+                                    if (index !== 0) cell.textContent = updatedData[index];
+                                });
+                            } else {
+                                alert("Error al guardar el usuario.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert("Error al guardar el usuario.");
+                        });
+
+
+                        fetch(`/add_unidad`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                nombre:updatedData[1],
+                                descripcion:updatedData[2],
+                                localidad:updatedData[3]
+                            })
+                        })
+                        .then(response =>{
+                            if(response.ok) {
+                                alert("Unidad guardada exitosamente.");
+                                cells.forEach((cell, index) =>  {
+                                    if(index !== 0) cell.textContent = updatedData[index];
+                                });
+                            } else {
+                                alert("Error al guardar la unidad.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:',error);
+                            alert("Error al guardar la unidad. ");
+                        })
+                    });
+                }
+               
+            });
+        });
+    </script>
+    app.run(debug=True, host='0.0.0.0', port=5000)
+    #app.run(debug=True, host='192.168.1.80', port=5000, ssl_context=('192.168.1.80.pem', '192.168.1.80-key.pem'))
+
+
+
+
+
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const tableBody = document.getElementById("tableBody");
+    const agregarBtn = document.getElementById("agregarBtn");
+    const nombreInput = document.getElementById("nombreInput");
+    const cargoInput = document.getElementById("cargoInput");
+    const form = document.getElementById('search-form');
+    const input = document.getElementById('search-input');
+
+    let destinatarios = [];
+    let editMode = false;
+    let currentEditId = null;
+    
+    loadData();
+
+    // Lógica de búsqueda
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const searchTerm = input.value.toLowerCase();
+        const filteredDestinatarios = destinatarios.filter(destinatario => 
+            destinatario.nombre.toLowerCase().includes(searchTerm) || 
+            destinatario.cargo.toLowerCase().includes(searchTerm)
+        );
+        renderTable(filteredDestinatarios);
+    });
+
+    function showNotification(message, isError = false) {
+        const notification = document.createElement('div');
+        notification.className = `notification ${isError ? 'error' : 'success'}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+
+    function loadData() {
+        fetch('/api/destinatarios')
+            .then(response => {
+                if (!response.ok) throw new Error('Error al cargar los datos');
+                return response.json();
+            })
+            .then(data => {
+                destinatarios = data;
+                renderTable(destinatarios);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification("Error al cargar los datos.", true);
+            });
+    }
+
+    function renderTable(destinatarios) {
+        tableBody.innerHTML = '';
+        
+        destinatarios.forEach((destinatario) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${destinatario.id}</td>
+                <td>${destinatario.nombre}</td>
+                <td>${destinatario.cargo}</td>
+                <td>${destinatario.fecha_creacion ? new Date(destinatario.fecha_creacion).toLocaleDateString() : new Date().toLocaleDateString()}</td>
+                <td>
+                    <div class="iconos">
+                        <button type="button" class="icon-btn edit-btn" data-id="${destinatario.id}" title="Editar">
+                            <img src="https://cdn-icons-png.flaticon.com/128/8188/8188360.png" alt="Editar">
+                        </button>
+                        <button type="button" class="icon-btn delete-btn" data-id="${destinatario.id}" title="Eliminar">
+                            <img src="https://cdn-icons-png.flaticon.com/128/3221/3221897.png" alt="Eliminar">
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+        
+        assignEvents();
+    }
+
+    function assignEvents() {
+        // Eventos para botones de editar
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const destinatario = destinatarios.find(d => d.id == id);
+                
+                if (destinatario) {
+                    editMode = true;
+                    currentEditId = id;
+                    nombreInput.value = destinatario.nombre;
+                    cargoInput.value = destinatario.cargo;
+                    
+                    agregarBtn.textContent = 'Actualizar';
+                }
+            });
+        });
+
+        // Eventos para botones de eliminar
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                if (confirm('¿Estás seguro de que deseas eliminar este destinatario?')) {
+                    fetch(`/api/destinatarios/${id}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            showNotification('Destinatario eliminado correctamente');
+                            loadData(); 
+                        } else {
+                            throw new Error('Error al eliminar');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('Error al eliminar destinatario', true);
+                    });
+                }
+            });
+        });
+    }
+
+    agregarBtn.addEventListener('click', function() {
+        const nombre = nombreInput.value.trim();
+        const cargo = cargoInput.value.trim();
+
+        if (!nombre || !cargo) {
+            showNotification('Por favor, complete todos los campos.', true);
+            return;
+        }
+
+        if (editMode) {
+            // Actualizar destinatario existente
+            fetch(`/api/destinatarios/${currentEditId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nombre: nombre,
+                    cargo: cargo
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('Destinatario actualizado exitosamente');
+                    loadData();
+                    resetForm();
+                } else {
+                    throw new Error('Error al actualizar');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al actualizar destinatario', true);
+            });
+        } else {
+            // Crear nuevo destinatario
+            fetch('/api/destinatarios', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nombre: nombre,
+                    cargo: cargo
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('Destinatario agregado exitosamente');
+                    loadData();
+                    resetForm();
+                } else {
+                    throw new Error('Error al agregar');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al agregar destinatario', true);
+            });
+        }
+    });
+
+    function resetForm() {
+        nombreInput.value = '';
+        cargoInput.value = '';
+        editMode = false;
+        currentEditId = null;
+        agregarBtn.textContent = 'Agregar';
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del DOM
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+    const tableBody = document.getElementById('tableBody');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageInfo = document.getElementById('pageInfo');
+    
+    // Variables de estado
+    let currentPage = 1;
+    let totalPages = 1;
+    let currentEditId = null;
+    
+    // Cargar destinatarios al inicio
+    loadDestinatarios();
+    
+    // Event Listeners
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        currentPage = 1;
+        loadDestinatarios();
+    });
+    
+    prevBtn.addEventListener('click', goToPrevPage);
+    nextBtn.addEventListener('click', goToNextPage);
+    
+    // Delegación de eventos para los botones de acción
+    tableBody.addEventListener('click', function(e) {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        
+        const row = btn.closest('tr');
+        const id = row.getAttribute('data-id'); // Cambiado para usar data-id de la fila
+        
+        if (btn.classList.contains('edit-btn')) {
+            startEditing(row, id);
+        } else if (btn.classList.contains('delete-btn')) {
+            deleteDestinatario(id, row);
+        } else if (btn.classList.contains('save-btn')) {
+            saveEditedDestinatario(row, id);
+        } else if (btn.classList.contains('cancel-btn')) {
+            cancelEdit(row);
+        }
+    });
+    
+    // Funciones principales
+    function loadDestinatarios() {
+        const searchTerm = searchInput.value.trim();
+        let url = `/api/destinatarios?page=${currentPage}`;
+        
+        if (searchTerm) {
+            url += `&search=${encodeURIComponent(searchTerm)}`;
+        }
+        
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('Error al cargar destinatarios');
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                totalPages = data.total_pages || 1;
+                currentPage = data.current_page || 1;
+                renderDestinatarios(data.destinatarios || []);
+                updatePagination();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert(error.message || 'Error al cargar destinatarios', 'error');
+            });
+    }
+    
+    function renderDestinatarios(destinatarios) {
+        tableBody.innerHTML = '';
+        
+        if (destinatarios.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="3" class="no-data">No hay destinatarios registrados</td>';
+            tableBody.appendChild(row);
+            return;
+        }
+        
+        destinatarios.forEach(destinatario => {
+            const row = document.createElement('tr');
+            row.setAttribute('data-id', destinatario.id); // Asegúrate de que tu API devuelva el id
+            row.innerHTML = `
+                <td class="nombre-cell">${destinatario.nombre}</td>
+                <td class="cargo-cell">${destinatario.cargo}</td>
+                <td class="actions">
+                    <button type="button" class="icon-btn edit-btn" title="Editar">
+                        <img src="https://cdn-icons-png.flaticon.com/128/8188/8188360.png" alt="Editar">
+                    </button>
+                    <button type="button" class="icon-btn delete-btn" title="Eliminar">
+                        <img src="https://cdn-icons-png.flaticon.com/128/3221/3221897.png" alt="Eliminar">
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    function startEditing(row, id) {
+        // Si ya estamos editando otra fila, cancelamos esa edición primero
+        if (currentEditId && currentEditId !== id) {
+            const previousEditRow = document.querySelector(`tr[data-id="${currentEditId}"]`);
+            if (previousEditRow) cancelEdit(previousEditRow);
+        }
+        
+        currentEditId = id;
+        
+        // Obtener los valores actuales
+        const nombre = row.querySelector('.nombre-cell').textContent;
+        const cargo = row.querySelector('.cargo-cell').textContent;
+        
+        // Convertir celdas a inputs
+        row.querySelector('.nombre-cell').innerHTML = `<input type="text" class="edit-input" value="${nombre}" data-field="nombre">`;
+        row.querySelector('.cargo-cell').innerHTML = `<input type="text" class="edit-input" value="${cargo}" data-field="cargo">`;
+        
+        // Cambiar botones
+        const actionsCell = row.querySelector('.actions');
+        actionsCell.innerHTML = `
+            <button type="button" class="icon-btn save-btn" title="Guardar">
+                <img src="https://cdn-icons-png.flaticon.com/128/5667/5667029.png" alt="Guardar">
+            </button>
+            <button type="button" class="icon-btn cancel-btn" title="Cancelar">
+                <img src="https://cdn-icons-png.flaticon.com/128/753/753345.png" alt="Cancelar">
+            </button>
+        `;
+        
+        // Enfocar el primer campo
+        row.querySelector('.edit-input').focus();
+    }
+    
+    function cancelEdit(row) {
+        // Necesitamos recuperar los valores originales
+        // En una implementación real, podrías almacenarlos o hacer una nueva petición
+        // Para simplificar, aquí recargamos la tabla
+        loadDestinatarios();
+        currentEditId = null;
+    }
+    
+    function saveEditedDestinatario(row, id) {
+        const nombreInput = row.querySelector('[data-field="nombre"]');
+        const cargoInput = row.querySelector('[data-field="cargo"]');
+        
+        const nombre = nombreInput.value.trim();
+        const cargo = cargoInput.value.trim();
+        
+        if (!nombre || !cargo) {
+            showAlert('Por favor complete todos los campos', 'error');
+            return;
+        }
+        
+        fetch(`/api/destinatarios/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ nombre, cargo }),
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Error al guardar');
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            showAlert('Destinatario actualizado correctamente', 'success');
+            loadDestinatarios(); // Recargamos para asegurar consistencia
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert(error.message || 'Error al actualizar el destinatario', 'error');
+        })
+        .finally(() => {
+            currentEditId = null;
+        });
+    }
+    
+    function deleteDestinatario(id, row) {
+        if (!confirm('¿Está seguro de que desea eliminar este destinatario?')) return;
+        
+        fetch(`/api/destinatarios/${id}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Error al eliminar');
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            showAlert(data.message || 'Destinatario eliminado correctamente', 'success');
+            row.remove();
+            
+            // Si era el último elemento de la página, retroceder
+            if (tableBody.querySelectorAll('tr').length === 0 && currentPage > 1) {
+                currentPage--;
+                loadDestinatarios();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert(error.message || 'Error al eliminar el destinatario', 'error');
+        });
+    }
+    
+    function updatePagination() {
+        pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+    }
+    
+    function goToPrevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            loadDestinatarios();
+        }
+    }
+    
+    function goToNextPage() {
+        if (currentPage < totalPages) {
+            currentPage++;
+            loadDestinatarios();
+        }
+    }
+    
+    function showAlert(message, type) {
+        // Eliminar alertas anteriores
+        const existingAlert = document.querySelector('.alert-message');
+        if (existingAlert) existingAlert.remove();
+        
+        const alert = document.createElement('div');
+        alert.className = `alert-message alert-${type}`;
+        alert.textContent = message;
+        
+        document.body.appendChild(alert);
+        
+        setTimeout(() => {
+            alert.remove();
+        }, 3000);
+    }
+});
+
+
+@app.route('/api/folios', methods=['GET'])
+def get_folios():
+    """Obtiene folios con paginación y búsqueda"""
+    try:
+        page = int(request.args.get('page', 1))
+        search = request.args.get('search', '')
+        items_per_page = 10
+        offset = (page - 1) * items_per_page
+
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Consulta base
+        query = "SELECT * FROM entrada"
+        count_query = "SELECT COUNT(*) AS total FROM entrada"
+        params = []
+        count_params = []
+
+        if search:
+            query += " WHERE area_origen LIKE %s OR resumen LIKE %s"
+            count_query += " WHERE area_origen LIKE %s OR resumen LIKE %s"
+            search_term = f"%{search}%"
+            params.extend([search_term, search_term])
+            count_params.extend([search_term, search_term])
+
+        # Consulta para los datos
+        query += " ORDER BY fecha DESC LIMIT %s OFFSET %s"
+        params.extend([items_per_page, offset])
+        cursor.execute(query, params)
+        folios = cursor.fetchall()
+
+        # Consulta para el total
+        cursor.execute(count_query, count_params)
+        total = cursor.fetchone()['total']
+        total_pages = (total + items_per_page - 1) // items_per_page
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'folios': [{
+                'id': folio['IdEntrada'],
+                'numero': folio['folio'],
+                'dirigido': folio['area_origen'],
+                'asunto': folio['resumen'],
+                'tipo': 'interno',  # Puedes ajustar esto según tu estructura
+                'fecha_registro': folio['fecha'].strftime('%Y-%m-%d %H:%M:%S')
+            } for folio in folios],
+            'total_pages': total_pages,
+            'current_page': page
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/folios', methods=['POST'])
+def add_folio():
+    """Agrega un nuevo folio"""
+    try:
+        data = request.get_json()
+        numero = data['numero']
+        dirigido = data['dirigido']
+        asunto = data['asunto']
+        tipo = data.get('tipo', 'interno')
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        query = "INSERT INTO entrada (folio, area_origen, resumen) VALUES (%s, %s, %s)"
+        cursor.execute(query, (numero, dirigido, asunto))
+        folio_id = cursor.lastrowid
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'id': folio_id,
+            'message': 'Folio agregado correctamente'
+        }), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/folios/<int:id>', methods=['PUT'])
+def update_folio(id):
+    """Actualiza un folio existente"""
+    try:
+        data = request.get_json()
+        numero = data['numero']
+        dirigido = data['dirigido']
+        asunto = data['asunto']
+        tipo = data.get('tipo', 'interno')
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        query = "UPDATE entrada SET folio = %s, area_origen = %s, resumen = %s WHERE IdEntrada = %s"
+        cursor.execute(query, (numero, dirigido, asunto, id))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({'message': 'Folio actualizado correctamente'})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/folios/<int:id>', methods=['DELETE'])
+def delete_folio(id):
+    """Elimina un folio"""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM entrada WHERE IdEntrada = %s", (id,))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({'message': 'Folio eliminado correctamente'})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------ruta de documento-------------------------------------------------------
+
+
+        @app.route('/documento')
+def editar_documento():
+    try:
+        folio_id = request.args.get('folio_id')
+        print(f"DEBUG: Accediendo a /documento con folio_id: {folio_id}")
+        
+        if not folio_id:
+            flash('No se ha especificado un folio', 'error')
+            return redirect(url_for('folios'))
+        
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # Obtener datos básicos del folio
+        cursor.execute("""
+            SELECT s.*, u.nombre as usuario_nombre 
+            FROM salidas s 
+            JOIN usuarios u ON s.IdUsuario = u.IdUsuario 
+            WHERE s.IdSalida = %s
+        """, (folio_id,))
+        folio = cursor.fetchone()
+        
+        if not folio:
+            flash('Folio no encontrado', 'error')
+            return redirect(url_for('folios'))
+        
+        # Obtener UI y CC del área
+        try:
+            cursor.execute("""
+                SELECT a.UI, a.CC
+                FROM areas a 
+                JOIN usuarios u ON u.area = a.nombre
+                WHERE u.IdUsuario = %s
+            """, (folio['IdUsuario'],))
+            area_data = cursor.fetchone() or {'UI': '129001', 'CC': '500100'}
+        except:
+            area_data = {'UI': '129001', 'CC': '500100'}
+        
+        folio['UI'] = area_data['UI']
+        folio['CC'] = area_data['CC']
+        
+        # Obtener borrador si existe
+        try:
+            cursor.execute("SELECT * FROM borradores_documentos WHERE IdSalida = %s", (folio_id,))
+            borrador = cursor.fetchone()
+        except:
+            borrador = None
+        
+        # Obtener todos los destinatarios disponibles (SOLO datos básicos)
+        cursor.execute("SELECT IdDestino as id, nombre, cargo FROM destinatarios ORDER BY nombre")
+        destinatarios = cursor.fetchall()
+        
+        # Obtener unidades disponibles (para otro propósito)
+        cursor.execute("SELECT IdUnidad as id, nombre FROM unidades ORDER BY nombre")
+        unidades = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+        
+        print(f"DEBUG: Renderizando documento.html con folio_id: {folio_id}")
+        return render_template('documento.html',
+                            folio=folio,
+                            borrador=borrador,
+                            folio_id=folio_id,
+                            destinatarios=destinatarios,
+                            unidades=unidades
+        )
+        
+    except Exception as e:
+        print(f"ERROR en /documento: {str(e)}")
+        flash('Error al cargar el editor de documento', 'error')
+        return redirect(url_for('folios'))
+    
+@app.route('/generar_documento', methods=['POST'])
+def generar_documento():
+    conn = None
+    cursor = None
+    try:
+        if 'IdUsuario' not in session:
+            return jsonify({'error': 'No autorizado'}), 401
+
+        if not request.is_json:
+            return jsonify({'error': 'Se esperaba formato JSON'}), 400
+
+        data = request.get_json()
+
+        # Validar campos obligatorios
+        required_fields = ['folio_id', 'destinatarios', 'asunto', 'cuerpo']
+        for campo in required_fields:
+            if campo not in data or not data[campo]:
+                return jsonify({'error': f'Campo {campo} es requerido'}), 400
+
+        if not data['destinatarios']:
+            return jsonify({'error': 'Se requiere al menos un destinatario'}), 400
+
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Obtener el área directamente del usuario
+        cursor.execute("SELECT area FROM usuarios WHERE IdUsuario = %s", (session['IdUsuario'],))
+        usuario_data = cursor.fetchone()
+        
+        if not usuario_data or not usuario_data.get('area'):
+            return jsonify({'error': 'No se pudo determinar el área del usuario'}), 400
+        
+        area_usuario = usuario_data['area']
+
+        # Ahora obtener UI y CC del área
+        cursor.execute("SELECT UI, CC FROM areas WHERE nombre = %s", (area_usuario,))
+        area_data = cursor.fetchone()
+        
+        # Si no encuentra el área, usar valores por defecto
+        ui = area_data['UI'] if area_data and area_data.get('UI') else '129001'
+        cc = area_data['CC'] if area_data and area_data.get('CC') else '500100'
+
+        # Obtener folio
+        cursor.execute("SELECT numero FROM salidas WHERE IdSalida = %s", (data['folio_id'],))
+        folio_data = cursor.fetchone()
+        if not folio_data:
+            return jsonify({'error': 'Folio no encontrado'}), 404
+
+        numero_folio = folio_data['numero']
+        partes = numero_folio.split('/')
+        siglas = partes[0] if len(partes) > 0 else "CI"
+        consecutivo = partes[1] if len(partes) > 1 else str(data['folio_id']).zfill(4)
+        anio = partes[2] if len(partes) > 2 else str(datetime.now().year)
+
+        numero_oficio = f"{ui}/{cc}/{siglas}/{consecutivo}/{anio}"
+
+        # Fecha formateada
+        meses = [
+            'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+            'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+        ]
+        now = datetime.now()
+        if now.month < 1 or now.month > 12:
+            mes_nombre = "enero"
+        else:
+            mes_nombre = meses[now.month-1]
+            
+        fecha_formateada = f"Acapulco de Juárez, Gro., a {now.day} de {mes_nombre} de {now.year}"
+
+        # Cargar plantilla
+        template_path = "static/documentos/Formato de oficio.docx"
+        if not os.path.exists(template_path):
+            return jsonify({'error': 'Plantilla de documento no encontrada'}), 500
+            
+        doc = Document(template_path)
+
+        # Función para reemplazar texto
+        def replace_text_in_doc(doc, replacements):
+            """Reemplaza texto en todo el documento, incluyendo tablas"""
+            # Reemplazar en párrafos
+            for paragraph in doc.paragraphs:
+                for search, replace in replacements.items():
+                    if search in paragraph.text:
+                        for run in paragraph.runs:
+                            if search in run.text:
+                                run.text = run.text.replace(search, str(replace))
+            
+            # Reemplazar en tablas
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        for paragraph in cell.paragraphs:
+                            for search, replace in replacements.items():
+                                if search in paragraph.text:
+                                    for run in paragraph.runs:
+                                        if search in run.text:
+                                            run.text = run.text.replace(search, str(replace))
+
+        # Preparar reemplazos
+        replacements = {
+            "Of. N° 129001/500100/CI/0065/2025": f"Of. N° {numero_oficio}",
+            "Acapulco de Juárez, Gro., a 31 de enero de 2025": fecha_formateada,
+            "Asunto del documento": data.get('asunto', ''),
+            "Cuerpo del mensaje": data['cuerpo'],
+            "***": data.get('elaborador', '')
+        }
+
+        # Unidad seleccionada
+        if data.get('unidad_nombre'):
+            replacements["Órgano de Operación Administrativa Desconcentrada Estatal Guerrero"] = data['unidad_nombre']
+
+        # Destinatarios
+        destinatarios_texto = ""
+        for destinatario in data['destinatarios']:
+            destinatarios_texto += f"{destinatario.get('nombre', '')}\n"
+            if destinatario.get('cargo'):
+                destinatarios_texto += f"{destinatario.get('cargo', '')}\n"
+        destinatarios_texto += "PRESENTE."
+
+        replacements["Nombre\nCargo y unidad\nPRESENTE."] = destinatarios_texto.strip()
+
+        # Aplicar reemplazos
+        replace_text_in_doc(doc, replacements)
+
+        # Guardar en memoria
+        file_stream = BytesIO()
+        doc.save(file_stream)
+        file_stream.seek(0)
+
+        nombre_archivo = f"Oficio_{numero_oficio.replace('/', '_')}.docx"
+
+        return send_file(
+            file_stream,
+            as_attachment=True,
+            download_name=nombre_archivo,
+            mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        )
+
+    except Exception as e:
+        logging.error(f'Error al generar documento: {str(e)}', exc_info=True)
+        return jsonify({'error': f'Error al generar el documento: {str(e)}'}), 500
+        
+    finally:
+        # Cerrar conexiones en el bloque finally
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
+@app.route('/documento')
+def editar_documento():
+    try:
+        folio_id = request.args.get('folio_id')
+        if not folio_id:
+            flash('No se ha especificado un folio', 'error')
+            return redirect(url_for('folios'))
+
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Datos del folio
+        cursor.execute("""
+            SELECT s.*, u.nombre as usuario_nombre, u.IdArea
+            FROM salidas s
+            JOIN usuarios u ON s.IdUsuario = u.IdUsuario
+            WHERE s.IdSalida = %s
+        """, (folio_id,))
+        folio = cursor.fetchone()
+        if not folio:
+            flash('Folio no encontrado', 'error')
+            return redirect(url_for('folios'))
+
+        # Todas las áreas
+        cursor.execute("SELECT IdArea as id, nombre, UI, CC FROM areas ORDER BY nombre")
+        areas = cursor.fetchall()
+
+        # Destinatarios disponibles
+        cursor.execute("SELECT IdDestino as id, nombre, cargo FROM destinatarios ORDER BY nombre")
+        destinatarios = cursor.fetchall()
+
+        # Unidades disponibles
+        cursor.execute("SELECT IdUnidad as id, nombre FROM unidades ORDER BY nombre")
+        unidades = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return render_template('documento.html',
+                               folio=folio,
+                               folio_id=folio_id,
+                               areas=areas,
+                               destinatarios=destinatarios,
+                               unidades=unidades)
+
+    except Exception as e:
+        print(f"ERROR en /documento: {str(e)}")
+        flash('Error al cargar el editor de documento', 'error')
+        return redirect(url_for('folios'))
+
+
+
+@app.route('/generar_documento', methods=['POST'])
+def generar_documento():
+    conn = None
+    cursor = None
+    try:
+        # Verificar sesión
+        if 'IdUsuario' not in session:
+            return jsonify({'error': 'No autorizado'}), 401
+
+        if not request.is_json:
+            return jsonify({'error': 'Se esperaba formato JSON'}), 400
+
+        data = request.get_json()
+
+        # Validar campos obligatorios
+        required_fields = ['folio_id', 'destinatarios', 'asunto', 'cuerpo']
+        for campo in required_fields:
+            if campo not in data or not data[campo]:
+                return jsonify({'error': f'Campo {campo} es requerido'}), 400
+
+        if not data['destinatarios']:
+            return jsonify({'error': 'Se requiere al menos un destinatario'}), 400
+
+        # Conexión a DB
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Obtener folio
+        cursor.execute("SELECT numero FROM salidas WHERE IdSalida = %s", (data['folio_id'],))
+        folio_data = cursor.fetchone()
+        if not folio_data:
+            return jsonify({'error': 'Folio no encontrado'}), 404
+
+        numero_folio = folio_data['numero']
+        partes = numero_folio.split('/')
+        siglas = partes[0] if len(partes) > 0 else "CI"
+        consecutivo = partes[1] if len(partes) > 1 else str(data['folio_id']).zfill(4)
+        anio = partes[2] if len(partes) > 2 else str(datetime.now().year)
+
+        # Tomar UI y CC enviados desde el front-end
+        ui = data.get('ui', '129001')
+        cc = data.get('cc', '500100')
+        numero_oficio = f"{ui}/{cc}/{siglas}/{consecutivo}/{anio}"
+
+        # Fecha formateada
+        meses = [
+            'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+            'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+        ]
+        now = datetime.now()
+        mes_nombre = meses[now.month-1] if 1 <= now.month <= 12 else 'enero'
+        fecha_formateada = f"Acapulco de Juárez, Gro., a {now.day} de {mes_nombre} de {now.year}"
+
+        # Cargar plantilla del usuario
+        template_path = os.path.join(current_app.root_path, "static", "documentos", f"formato_{session['IdUsuario']}.docx")
+        if not os.path.exists(template_path):
+            return jsonify({'error': 'Plantilla de documento no encontrada'}), 500
+
+        doc = Document(template_path)
+
+        # Preparar destinatarios
+        destinatarios_texto = ""
+        for dest in data['destinatarios']:
+            nombre = dest.get('nombre', '')
+            cargo = dest.get('cargo', '')
+            destinatarios_texto += f"{nombre}\n{cargo}\n"
+        destinatarios_texto = destinatarios_texto.strip()
+
+        # Preparar reemplazos
+        replacements = {
+            "{{NUMERO_OFICIO}}": f"Of. N° {numero_oficio}",
+            "{{FECHA}}": fecha_formateada,
+            "{{UNIDAD}}": data.get('unidad_nombre', ''),
+            "{{AREA}}": data.get('area_nombre', ''),
+            "{{DESTINATARIOS}}": destinatarios_texto,
+            "{{ASUNTO}}": data.get('asunto', ''),
+            "{{CUERPO}}": data.get('cuerpo', ''),
+            "{{ELABORADOR}}": data.get('elaborador', '')
+        }
+
+        # Función para reemplazar texto en todo el documento
+        def replace_text_in_doc(doc, replacements):
+            # Reemplazar en párrafos
+            for paragraph in doc.paragraphs:
+                full_text = paragraph.text
+                for search, replace in replacements.items():
+                    if search in full_text:
+                        full_text = full_text.replace(search, replace)
+                        for run in paragraph.runs:
+                            run.text = ''
+                        if paragraph.runs:
+                            paragraph.runs[0].text = full_text
+
+            # Reemplazar en tablas
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        for paragraph in cell.paragraphs:
+                            full_text = paragraph.text
+                            for search, replace in replacements.items():
+                                if search in full_text:
+                                    full_text = full_text.replace(search, replace)
+                                    for run in paragraph.runs:
+                                        run.text = ''
+                                    if paragraph.runs:
+                                        paragraph.runs[0].text = full_text
+
+        # Aplicar reemplazos
+        replace_text_in_doc(doc, replacements)
+
+        # Guardar en memoria y enviar al cliente
+        file_stream = BytesIO()
+        doc.save(file_stream)
+        file_stream.seek(0)
+        nombre_archivo = f"Oficio_{numero_oficio.replace('/', '_')}.docx"
+
+        return send_file(
+            file_stream,
+            as_attachment=True,
+            download_name=nombre_archivo,
+            mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        )
+
+    except Exception as e:
+        logging.error(f'Error al generar documento: {str(e)}', exc_info=True)
+        return jsonify({'error': f'Error al generar el documento: {str(e)}'}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
